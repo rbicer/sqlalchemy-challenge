@@ -1,5 +1,4 @@
-#IMPORT
-
+#IMPORT DEPENDICIES
 import pandas as pd
 import numpy as np
 import datetime as dt
@@ -29,14 +28,51 @@ app = Flask(__name__)
 @app.route("/")
 def welcome():
     return (
+        f"Welcome to Hawaii! <br/>"
         f"Available Routes:<br/>"
         f"List of Temperatures: /api/v1.0/temp/start/end"
         f"List of Stations: /api/v1.0/stations<br/>"
-        f"Precipitation: /api/v1.0/precipitation<br/>"
-        f"/api/v1.0/tobs<br/>"
-     )
+        f"List of Precipitations: /api/v1.0/precipitation<br/>"
+        f"Tobs: /api/v1.0/tobs<br/>"
+    )
      
-#Temperatures
+@app.route("/")
+def welcome():
+    return (
+        f"Welcome to the Hawaii Climate Analysis API!<br/>"
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/temp/start/end"
+    )
+
+
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    """Return the precipitation data for the last year"""
+    # Calculate the date 1 year ago from last date in database
+    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+
+    # Query for the date and precipitation for the last year
+    precipitation = session.query(Measurement.date, Measurement.prcp).\
+        filter(Measurement.date >= prev_year).all()
+
+    # Dict with date as the key and prcp as the value
+    precip = {date: prcp for date, prcp in precipitation}
+    return jsonify(precip)
+
+
+@app.route("/api/v1.0/stations")
+def stations():
+    """Return a list of stations."""
+    results = session.query(Station.station).all()
+
+    # Unravel results into a 1D array and convert to a list
+    stations = list(np.ravel(results))
+    return jsonify(stations=stations)
+
+
 @app.route("/api/v1.0/tobs")
 def temp_monthly():
     """Return the temperature observations (tobs) for previous year."""
@@ -53,31 +89,6 @@ def temp_monthly():
 
     # Return the results
     return jsonify(temps=temps)
-
-#Stations
-@app.route("/api/v1.0/stations")
-def stations():
-    """Return a list of stations."""
-    results = session.query(Station.station).all()
-
-    # Unravel results into a 1D array and convert to a list
-    stations = list(np.ravel(results))
-    return jsonify(stations=stations)
-
-#Precipitations
-@app.route("/api/v1.0/precipitation")
-def precipitation():
-    """Return the precipitation data for the last year"""
-    # Calculate the date 1 year ago from last date in database
-    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-
-    # Query for the date and precipitation for the last year
-    precipitation = session.query(Measurement.date, Measurement.prcp).\
-        filter(Measurement.date >= prev_year).all()
-
-    # Dict with date as the key and prcp as the value
-    precip = {date: prcp for date, prcp in precipitation}
-    return jsonify(precip)
 
 
 @app.route("/api/v1.0/temp/<start>")
@@ -103,6 +114,7 @@ def stats(start=None, end=None):
     # Unravel results into a 1D array and convert to a list
     temps = list(np.ravel(results))
     return jsonify(temps=temps)
+
 
 
 if __name__ == '__main__':
