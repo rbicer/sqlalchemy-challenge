@@ -25,16 +25,6 @@ session = Session(engine)
 app = Flask(__name__)
 
 # Flask Routes
-@app.route("/")
-def welcome():
-    return (
-        f"Welcome to Hawaii! <br/>"
-        f"Available Routes:<br/>"
-        f"List of Temperatures: /api/v1.0/temp/start/end"
-        f"List of Stations: /api/v1.0/stations<br/>"
-        f"List of Precipitations: /api/v1.0/precipitation<br/>"
-        f"Tobs: /api/v1.0/tobs<br/>"
-    )
      
 @app.route("/")
 def welcome():
