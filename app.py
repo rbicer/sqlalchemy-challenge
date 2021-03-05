@@ -24,34 +24,18 @@ session = Session(engine)
 #Set up Flask
 app = Flask(__name__)
 
-# Flask Routes
+# FLASK ROUTES
      
 @app.route("/")
-def welcome():
+def climate():
     return (
-        f"Welcome to the Hawaii Climate Analysis API!<br/>"
+        f"The Hawaii Climate Analysis API!<br/>"
         f"Available Routes:<br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
-        f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/temp/start/end"
+        f"The list of the Stations: /api/v1.0/stations<br/>"
+        f"The list of the tobs: /api/v1.0/tobs<br/>"
+        f"The list of the Precipitations: /api/v1.0/precipitation<br/>"
+        f"The list of the Temperatures: /api/v1.0/temp/start/end"
     )
-
-
-@app.route("/api/v1.0/precipitation")
-def precipitation():
-    """Return the precipitation data for the last year"""
-    # Calculate the date 1 year ago from last date in database
-    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-
-    # Query for the date and precipitation for the last year
-    precipitation = session.query(Measurement.date, Measurement.prcp).\
-        filter(Measurement.date >= prev_year).all()
-
-    # Dict with date as the key and prcp as the value
-    precip = {date: prcp for date, prcp in precipitation}
-    return jsonify(precip)
-
 
 @app.route("/api/v1.0/stations")
 def stations():
@@ -79,6 +63,22 @@ def temp_monthly():
 
     # Return the results
     return jsonify(temps=temps)
+
+
+
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    """Return the precipitation data for the last year"""
+    # Calculate the date 1 year ago from last date in database
+    prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+
+    # Query for the date and precipitation for the last year
+    precipitation = session.query(Measurement.date, Measurement.prcp).\
+        filter(Measurement.date >= prev_year).all()
+
+    # Dict with date as the key and prcp as the value
+    precip = {date: prcp for date, prcp in precipitation}
+    return jsonify(precip)
 
 
 @app.route("/api/v1.0/temp/<start>")
